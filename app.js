@@ -3,6 +3,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import authRouter from "./Routes/auth.routes.js"
 import hooksRouter from "./Routes/hooks.routes.js";
+import mailRouter from "./Routes/mails.routes.js";
 
 const app = express();
 
@@ -15,6 +16,9 @@ app.use("/api/auth", authRouter)
 
 // Hooks Routes
 app.use("/api/hooks",hooksRouter)
+
+//Mails Routes
+app.use("/api/mails",mailRouter)
 
 
 export {app};
