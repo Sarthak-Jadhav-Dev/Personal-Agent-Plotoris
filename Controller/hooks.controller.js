@@ -22,6 +22,15 @@ export const setHooks = asyncHandler(async(req,res)=>{
         featuresDoc = await Features.findOne({ user: user._id });
     }
 
+    const normalizedHookName = hook_name.trim().toLowerCase();
+    const hookExists = featuresDoc?.hooks?.some((hook)=>
+        hook.hook_name?.trim().toLowerCase() === normalizedHookName
+    );
+
+    if(hookExists){
+        return res.status(409).json({messege:"Hook name already exists for this user"});
+    }
+
     if(!featuresDoc){
         featuresDoc = await Features.create({
             user: user._id,

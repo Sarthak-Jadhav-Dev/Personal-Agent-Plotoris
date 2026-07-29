@@ -4,13 +4,16 @@ const featuresScheme = new mongoose.Schema({
     user:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
+        required:true,
+        unique:true,
+        index:true
     },
     hooks:[
         {
             hook_name:{
                 type:String,
-                unique:true,
-                required:true
+                required:true,
+                trim:true
             },
             hook_value:{
                 type:String,

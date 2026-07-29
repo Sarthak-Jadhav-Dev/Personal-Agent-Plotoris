@@ -1,4 +1,4 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 import jwt from "jsonwebtoken"
 const userSchema = new mongoose.Schema({
     username: {
@@ -32,7 +32,9 @@ const userSchema = new mongoose.Schema({
     },
     featuresAccess:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"Features"
+        ref:"Features",
+        default:null,
+        index:true
     }
 }, { timestamps: true })
 
