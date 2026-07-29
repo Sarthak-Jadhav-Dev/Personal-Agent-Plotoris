@@ -52,7 +52,7 @@ export const viewHooks = asyncHandler(async(req,res)=>{
     const hooksDoc = await Features.findOne({ user: user._id });
 
     if(!hooksDoc){
-        return res.status(404).json({
+        return res.status(201).json({
             messege:"No hooks found for this user"
         })
     }
