@@ -12,14 +12,32 @@ const buildAiPrompt = ({ userName, safeEmails, hooks }) => {
         ? safeEmails.map((mail) => `- ${mail.id}: ${mail.preview || mail.snippet || "No preview available"}`).join("\n")
         : "No safe emails available to analyze.";
 
+    const responseSchema = `{
+  "matchedHooks": [{ "hookName": string, "emailId": string, "reason": string }],
+  "emails": [
+    {
+      "emailId": string,
+      "summary": string,
+      "priority": number (1=low, 2=normal, 3=medium, 4=high, 5=urgent),
+      "category": string (one of: "finance", "work", "education", "social", "promotions", "travel", "health", "government", "subscriptions", "personal", "other"),
+      "deadline": string | null (ISO date like "2026-08-09" or null if none),
+      "deadlineLabel": string | null (human-readable like "Register before Aug 9" or null),
+      "actionRequired": boolean,
+      "action": string | null (short action description if actionRequired is true, else null)
+    }
+  ],
+  "overallSummary": string,
+  "manualReview": [string]
+}`;
+
     return [
         {
             role: "system",
-            content: "You are an inbox analysis assistant. Review the given emails and user hooks. Return valid JSON only with the fields matchedHooks, summary, actions, and manualReview."
+            content: `You are an intelligent inbox analysis assistant. Analyze emails and return a structured JSON response. Be precise with priority scoring, category assignment, and deadline extraction. Today's date is ${new Date().toISOString().split("T")[0]}. Return valid JSON only matching this exact schema:\n${responseSchema}`
         },
         {
             role: "user",
-            content: `User: ${userName}\n\nHooks:\n${hookText}\n\nSafe emails:\n${emailText}\n\nInstructions:\n- Find which hooks match the email content.\n- Summarize the important events in the emails.\n- Suggest short action items if something requires attention.\n- Return JSON only.`
+            content: `User: ${userName}\n\nHooks:\n${hookText}\n\nSafe emails:\n${emailText}\n\nInstructions:\n- Match hooks against email content and explain why.\n- For EACH email, provide: a concise summary, priority score (1-5), category, deadline (extract any dates/deadlines mentioned), and whether action is required with a short action description.\n- Priority guide: 1=newsletter/promo, 2=informational, 3=needs attention soon, 4=important/time-sensitive, 5=urgent/immediate action.\n- Extract deadlines from phrases like "due by", "expires on", "register before", "deadline", "last date", "submit by", etc.\n- Provide an overall summary of the inbox state.\n- Flag emails needing manual review.\n- Return JSON only, no markdown.`
         }
     ];
 };
@@ -43,7 +61,7 @@ const callOpenRouter = async (messages) => {
             model: process.env.OPENROUTER_MODEL || "openrouter/free",
             messages,
             temperature: 0.2,
-            max_tokens: 500
+            max_tokens: 1200
         })
     });
 

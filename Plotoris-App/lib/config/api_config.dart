@@ -10,6 +10,14 @@ class ApiConfig {
   // Auth endpoints
   static const String googleMobileAuth = '/api/auth/google/mobile';
 
+  // Analysis endpoints
+  static const String analyseEmails = '/api/analysis/email';
+
+  // Hooks endpoints
+  static const String getHooks = '/api/hooks/getHooks';
+  static const String setHook = '/api/hooks/setHook';
+  static const String deleteHook = '/api/hooks/deleteHook';
+
   // Token storage keys
   static const String accessTokenKey = 'access_token';
   static const String refreshTokenKey = 'refresh_token';
