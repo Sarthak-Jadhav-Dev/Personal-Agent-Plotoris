@@ -1,6 +1,6 @@
 import { analyseEmails } from "../Controller/aiAnalysis.controller.js";
 import {Router} from 'express'
-import {verifyJWT} from "../Middlewares/auth.middleware.js";
+import {verifyJWT} from "../Middlewares/auth.middlewares.js";
 const router = Router();
 
 router.use(verifyJWT)
