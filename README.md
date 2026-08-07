@@ -1,15 +1,14 @@
-# Schedular Backend
+# Schedular (Plotoris)
 
 <div align="center">
+  <img src="https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white" alt="Flutter" />
   <img src="https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white" alt="Node.js" />
   <img src="https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white" alt="Express" />
   <img src="https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb&logoColor=white" alt="MongoDB" />
   <img src="https://img.shields.io/badge/AI-OpenRouter-8A2BE2" alt="OpenRouter" />
-  <img src="https://img.shields.io/badge/Status-Backend%20Ready-brightgreen" alt="Status" />
-  <img src="https://img.shields.io/badge/Deployment-Local%20Dev-blue" alt="Deployment" />
 </div>
 
-A smart backend service for scheduling, inbox automation, and AI-powered email analysis. It authenticates users with Google OAuth, stores hook-based rules, analyzes Gmail content safely, and prepares structured summaries for downstream AI processing.
+A comprehensive platform comprising a **Flutter Mobile Application** (`Plotoris-App`) and a **Smart Node.js Backend** (`Backend`). The system is designed for scheduling, inbox automation, and AI-powered email analysis. It authenticates users with Google OAuth, stores hook-based rules, analyzes Gmail content safely, and prepares structured summaries for downstream AI processing.
 
 ---
 
@@ -17,7 +16,7 @@ A smart backend service for scheduling, inbox automation, and AI-powered email a
 
 ```mermaid
 flowchart LR
-    A[Client / Postman] --> B[Express API]
+    A[Plotoris Flutter App] --> B[Express API (Backend)]
     B --> C[Auth Routes]
     B --> D[Hooks Routes]
     B --> E[Email Analysis Controller]
@@ -32,44 +31,58 @@ flowchart LR
 
 ## ✨ Features
 
+### Mobile App (Plotoris-App)
+- Cross-platform Flutter application
+- Google Authentication / Login & Sign-in flows
+- Hook management UI for user-defined automation rules
+
+### Backend Service (Backend)
 - Google authentication flow for Gmail access
 - JWT-based protected routes
-- Hook management for user-defined automation rules
 - Safe email filtering before sending content to AI
 - AI-powered email analysis via OpenRouter
 - MongoDB persistence through Mongoose
 
 ---
 
-## 🧱 Project Structure
+## 🧱 Repository Structure
+
+This repository is structured as a monorepo containing both the frontend application and the backend service:
 
 ```text
-Backend/
-├── Controller/         # Route handlers and business logic
-├── DB/                 # Database connection setup
-├── Helpers/            # Utility helpers for auth, Gmail, and privacy filtering
-├── Middlewares/        # JWT authentication middleware
-├── Models/             # Mongoose schemas
-├── Routes/             # Express route definitions
-├── app.js              # Express app setup
-├── index.js            # Server entry point
-└── package.json        # Dependencies and scripts
+.
+├── Backend/                 # Node.js + Express Backend Service
+│   ├── Controller/          # Route handlers and business logic
+│   ├── DB/                  # Database connection setup
+│   ├── Helpers/             # Utility helpers for auth, Gmail, and privacy filtering
+│   ├── Middlewares/         # JWT authentication middleware
+│   ├── Models/              # Mongoose schemas
+│   ├── Routes/              # Express route definitions
+│   ├── app.js               # Express app setup
+│   ├── index.js             # Server entry point
+│   └── package.json         # Dependencies and scripts
+│
+└── Plotoris-App/            # Flutter Mobile Application
+    ├── lib/                 # Dart source code (screens, services, models)
+    ├── android/             # Android native code
+    ├── ios/                 # iOS native code
+    ├── pubspec.yaml         # Flutter dependencies
+    └── README.md            # App-specific documentation
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Install dependencies
+### 1. Backend Setup
 
+Navigate to the `Backend` directory:
 ```bash
+cd Backend
 npm install
 ```
 
-### 2. Create environment variables
-
-Create a `.env` file in the project root with the following values:
-
+Create an `.env` file in the `Backend` directory (an example might be provided as `.env.example`):
 ```env
 PORT=8000
 
@@ -90,175 +103,70 @@ OPENROUTER_REFERER=http://localhost:8000
 OPENROUTER_TITLE=Scheduler Backend
 ```
 
-### 3. Run the application
-
+Run the backend server:
 ```bash
 node index.js
+# Or with nodemon: npx nodemon index.js
 ```
 
-Or with nodemon:
+### 2. Mobile App Setup
 
+Navigate to the `Plotoris-App` directory:
 ```bash
-npx nodemon index.js
+cd Plotoris-App
+flutter pub get
 ```
+
+Run the application on an emulator or physical device:
+```bash
+flutter run
+```
+
+*(Note: You may need to configure Firebase/Google Sign-In natively in Android/iOS folders depending on the authentication setup)*
 
 ---
 
 ## 🔐 Authentication Flow
 
-### Google auth routes
-
-- `GET /api/auth/google/url`
-  - Returns the Google OAuth URL
-
-- `GET /api/auth/google/callback`
-  - Completes OAuth login and returns access/refresh tokens
+1. The **Plotoris-App** directs the user to the Google OAuth URL (`GET /api/auth/google/url`).
+2. After the user logs in, the backend's callback (`GET /api/auth/google/callback`) is triggered.
+3. The backend issues JWT Access and Refresh tokens to the app, establishing a secure session.
 
 ---
 
-## 🪝 Hooks API
+## 🪝 Hooks Integration
 
-Protected routes for storing and managing user hooks.
-
-### Endpoints
-
-- `PUT /api/hooks/setHook`
-- `GET /api/hooks/getHooks`
-- `DELETE /api/hooks/deleteHook`
-
-### Example request body for creating a hook
-
-```json
-{
-  "hook_name": "invoice_alert",
-  "hook_value": "invoice",
-  "hook_description": "Notify when an invoice-related email arrives"
-}
-```
+Hooks allow users to define automation rules (e.g., "Notify me about invoices").
+- **Frontend**: Users manage hooks via the Flutter app interface.
+- **Backend API**: The app communicates with the backend via protected routes:
+  - `PUT /api/hooks/setHook`
+  - `GET /api/hooks/getHooks`
+  - `DELETE /api/hooks/deleteHook`
 
 ---
 
-## 📧 Email Analysis Flow
+## 📧 AI Email Analysis Flow
 
-The backend fetches Gmail messages, filters sensitive content, and sends only safe email previews to the AI for analysis.
-
-### What happens
+The system fetches Gmail messages, filters sensitive content, and sends only safe email previews to the AI for analysis.
 
 1. Gmail messages are fetched using the user’s Google access token.
-2. Email content is scanned for sensitive/private information.
-3. Safe emails are sent to OpenRouter for analysis.
-4. The response includes:
-   - matched hooks
-   - summary of email events
-   - suggested actions
-   - manual review items
-
----
-
-## 🧠 AI Integration
-
-The AI layer uses OpenRouter to process safe mail content with a prompt that includes:
-
-- user information
-- configured hooks
-- filtered email previews
-
-This allows the app to generate intelligent summaries and recommended actions without exposing sensitive private data.
+2. Email content is scanned for sensitive/private information via a **Privacy Filter Helper**.
+3. Safe emails are sent to OpenRouter (AI layer) with a prompt including user information, configured hooks, and safe previews.
+4. The AI returns a structured response containing:
+   - Matched hooks
+   - Summary of email events
+   - Suggested actions
+   - Manual review items
 
 ---
 
 ## 🛠️ Tech Stack
 
-- Node.js
-- Express.js
-- MongoDB + Mongoose
-- Google OAuth / Gmail API
-- JWT
-- OpenRouter API
-
----
-
-## 🧪 How to Test in Postman
-
-### 1. Start the server
-
-```bash
-node index.js
-```
-
-### 2. Get the Google login URL
-
-- Method: `GET`
-- URL: `http://localhost:8000/api/auth/google/url`
-
-This returns a Google OAuth URL.
-
-### 3. Complete Google login
-
-Open the returned URL in your browser, sign in, and complete the OAuth flow.
-
-After success, the backend returns a JSON response with:
-
-```json
-{
-  "message": "User authenticated successfully",
-  "accessToken": "...",
-  "refreshToken": "..."
-}
-```
-
-### 4. Use the access token for protected routes
-
-In Postman, add this header:
-
-```http
-Authorization: Bearer <your_accessToken>
-```
-
-### 5. Test hooks routes
-
-#### Set a hook
-
-- Method: `PUT`
-- URL: `http://localhost:8000/api/hooks/setHook`
-- Body:
-
-```json
-{
-  "hook_name": "invoice_alert",
-  "hook_value": "invoice",
-  "hook_description": "Notify when an invoice email arrives"
-}
-```
-
-#### Get hooks
-
-- Method: `GET`
-- URL: `http://localhost:8000/api/hooks/getHooks`
-
-#### Delete a hook
-
-- Method: `DELETE`
-- URL: `http://localhost:8000/api/hooks/deleteHook`
-- Body:
-
-```json
-{
-  "deleteHookName": "invoice_alert"
-}
-```
-
-### 6. Test AI analysis route
-
-If you expose the analysis route in your app, call it with the same bearer token.
-
----
-
-## 📌 Notes
-
-- Sensitive emails are filtered before sending to AI.
-- The app currently focuses on backend orchestration and analysis logic.
-- The frontend is not included in this repository.
+- **Mobile**: Flutter, Dart
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB + Mongoose
+- **Auth**: Google OAuth, JWT
+- **AI**: OpenRouter API
 
 ---
 
